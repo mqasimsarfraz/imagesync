@@ -38,10 +38,6 @@ GLOBAL OPTIONS:
    --version, -v           print the version
 
 ```
-## Example:
-```
-
-```
 ## Todo(s):
 - Add support for further registries e.g AWS ECR, Jfrog etc
 - Add support to choose image policies.
