@@ -123,23 +123,27 @@ func Execute() error {
 }
 
 func targetTags(overwrite bool, src, dest []string) []string {
-	if !overwrite {
+	if overwrite {
 		return src
 	}
-	return diff(src, dest)
+	return missingTags(src, dest)
 }
 
-func diff(a, b []string) []string {
+func missingTags(src, dest []string) []string {
 	var result []string
 
+	if len(dest) == 0 {
+		return src
+	}
+
 	m := make(map[string]bool)
-	for _, i := range b {
+	for _, i := range dest {
 		m[i] = true
 	}
 
-	for _, j := range a {
-		if !m[j] {
-			result = append(result, j)
+	for _, tag := range src {
+		if !m[tag] {
+			result = append(result, tag)
 		}
 	}
 	return result

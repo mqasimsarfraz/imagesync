@@ -22,8 +22,10 @@ RUN go build -v -ldflags="-s -w" -o /out/imagesync ./cmd/imagesync
 FROM bitnami/minideb:stretch
 
 RUN apt -qq update && \
-    apt install -y git libgpgme-dev && \
+    apt install -y libgpgme-dev --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
+
+COPY policy.json /etc/containers/policy.json
 
 EXPOSE 3080
 
