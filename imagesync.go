@@ -10,7 +10,19 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"os"
+	"sync"
 )
+
+var wg sync.WaitGroup
+
+type copyImageInput struct {
+	context           context.Context
+	policyContext     *signature.PolicyContext
+	dest              string
+	destSystemContext *types.SystemContext
+	src               string
+	srcSystemContext  *types.SystemContext
+}
 
 func Execute() error {
 
@@ -40,6 +52,11 @@ func Execute() error {
 		cli.BoolFlag{
 			Name:  "overwrite",
 			Usage: "Use this to copy/override all the tags.",
+		},
+		cli.IntFlag{
+			Name:  "max-concurrent-tags",
+			Usage: "Maximum number of tags to be synced/copied in parallel.",
+			Value: 10,
 		},
 	}
 
@@ -71,6 +88,9 @@ func Execute() error {
 			}
 		}
 
+		policy, _ := signature.DefaultPolicy(nil)
+		policyContext, _ := signature.NewPolicyContext(policy)
+
 		srcTags, err := docker.GetRepositoryTags(ctx, srcSysCtx, srcRegistry)
 		if err != nil {
 			return errors.WithMessage(err, "getting source tags")
@@ -85,30 +105,47 @@ func Execute() error {
 		}
 		fmt.Printf("Info: Starting image sync with %d tags ...\n", len(targetTags))
 
-		for _, tag := range targetTags {
-			src, err := docker.ParseReference(fmt.Sprintf("//%s:%s", c.String("src"), tag))
-			if err != nil {
-				return err
-			}
-
-			dest, err := docker.ParseReference(fmt.Sprintf("//%s:%s", c.String("dest"), tag))
-			if err != nil {
-				return err
-			}
-
-			policy, _ := signature.DefaultPolicy(nil)
-			policyContext, _ := signature.NewPolicyContext(policy)
-
-			fmt.Printf("Info: Copying image with tag: %s\n", tag)
-			_, err = copy.Image(ctx, policyContext, dest, src, &copy.Options{
-				ReportWriter:   os.Stdout,
-				SourceCtx:      srcSysCtx,
-				DestinationCtx: destSysCtx,
-			})
-			if err != nil {
-				return err
-			}
+		// limit the go routines to avoid 429 on registries
+		var numberOfConcurrentTags int
+		maxConcurrentTags := c.Int("max-concurrent-tags")
+		if len(targetTags) < maxConcurrentTags {
+			numberOfConcurrentTags = len(targetTags)
+		} else {
+			numberOfConcurrentTags = maxConcurrentTags
 		}
+
+		ch := make(chan string, len(targetTags))
+
+		wg.Add(numberOfConcurrentTags)
+
+		input := &copyImageInput{
+			context:           ctx,
+			policyContext:     policyContext,
+			dest:              c.String("dest"),
+			destSystemContext: destSysCtx,
+			src:               c.String("src"),
+			srcSystemContext:  srcSysCtx,
+		}
+
+		for i := 0; i < numberOfConcurrentTags; i++ {
+			go func() {
+				for {
+					tag, ok := <-ch
+					if !ok {
+						wg.Done()
+						return
+					}
+					input.copyImage(tag)
+				}
+			}()
+		}
+
+		for _, tag := range targetTags {
+			ch <- tag
+		}
+
+		close(ch)
+		wg.Wait()
 
 		fmt.Println("Info: Registries image sync completed.")
 
@@ -120,6 +157,18 @@ func Execute() error {
 		return err
 	}
 	return nil
+}
+
+func (ci *copyImageInput) copyImage(tag string) {
+
+	destRef, _ := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.dest, tag))
+	srcRef, _ := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.src, tag))
+
+	copy.Image(ci.context, ci.policyContext, destRef, srcRef, &copy.Options{
+		ReportWriter:   os.Stdout,
+		DestinationCtx: ci.destSystemContext,
+		SourceCtx:      ci.srcSystemContext,
+	})
 }
 
 func targetTags(overwrite bool, src, dest []string) []string {
