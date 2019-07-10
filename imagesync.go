@@ -8,6 +8,7 @@ import (
 	"github.com/containers/image/signature"
 	"github.com/containers/image/types"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	"os"
 	"sync"
@@ -17,7 +18,6 @@ var wg sync.WaitGroup
 
 type copyImageInput struct {
 	context           context.Context
-	policyContext     *signature.PolicyContext
 	dest              string
 	destSystemContext *types.SystemContext
 	src               string
@@ -56,7 +56,7 @@ func Execute() error {
 		cli.IntFlag{
 			Name:  "max-concurrent-tags",
 			Usage: "Maximum number of tags to be synced/copied in parallel.",
-			Value: 10,
+			Value: 12,
 		},
 	}
 
@@ -88,9 +88,6 @@ func Execute() error {
 			}
 		}
 
-		policy, _ := signature.DefaultPolicy(nil)
-		policyContext, _ := signature.NewPolicyContext(policy)
-
 		srcTags, err := docker.GetRepositoryTags(ctx, srcSysCtx, srcRegistry)
 		if err != nil {
 			return errors.WithMessage(err, "getting source tags")
@@ -100,18 +97,17 @@ func Execute() error {
 
 		targetTags := targetTags(c.Bool("overwrite"), srcTags, destTags)
 		if len(targetTags) == 0 {
-			fmt.Println("Info: Images in registries are already synced.")
+			logrus.Info("Image in registries are already synced")
 			os.Exit(0)
 		}
-		fmt.Printf("Info: Starting image sync with %d tags ...\n", len(targetTags))
+
+		logrus.Infof("Starting image sync with %d tags", len(targetTags))
 
 		// limit the go routines to avoid 429 on registries
-		var numberOfConcurrentTags int
 		maxConcurrentTags := c.Int("max-concurrent-tags")
+		numberOfConcurrentTags := maxConcurrentTags
 		if len(targetTags) < maxConcurrentTags {
 			numberOfConcurrentTags = len(targetTags)
-		} else {
-			numberOfConcurrentTags = maxConcurrentTags
 		}
 
 		ch := make(chan string, len(targetTags))
@@ -120,7 +116,6 @@ func Execute() error {
 
 		input := &copyImageInput{
 			context:           ctx,
-			policyContext:     policyContext,
 			dest:              c.String("dest"),
 			destSystemContext: destSysCtx,
 			src:               c.String("src"),
@@ -147,7 +142,7 @@ func Execute() error {
 		close(ch)
 		wg.Wait()
 
-		fmt.Println("Info: Registries image sync completed.")
+		logrus.Info("Registries image sync completed.")
 
 		return nil
 	}
@@ -164,7 +159,10 @@ func (ci *copyImageInput) copyImage(tag string) {
 	destRef, _ := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.dest, tag))
 	srcRef, _ := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.src, tag))
 
-	copy.Image(ci.context, ci.policyContext, destRef, srcRef, &copy.Options{
+	policy, _ := signature.DefaultPolicy(nil)
+	policyContext, _ := signature.NewPolicyContext(policy)
+
+	copy.Image(ci.context, policyContext, destRef, srcRef, &copy.Options{
 		ReportWriter:   os.Stdout,
 		DestinationCtx: ci.destSystemContext,
 		SourceCtx:      ci.srcSystemContext,
