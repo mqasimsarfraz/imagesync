@@ -1,8 +1,7 @@
-FROM golang:1.12.6-stretch as go-builder
+FROM golang:1.14.4-stretch as go-builder
 
 ENV PACKAGE github.com/MQasimSarfraz/image-sync
 ENV CGO_ENABLED 1
-ENV GO111MODULE=on
 
 WORKDIR $GOPATH/src/$PACKAGE
 
@@ -26,8 +25,6 @@ RUN apt -qq update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY policy.json /etc/containers/policy.json
-
-EXPOSE 3080
 
 COPY --from=go-builder /out/imagesync /
 
