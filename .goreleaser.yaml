@@ -3,14 +3,15 @@ before:
     - go mod download
 builds:
   - main: ./cmd/imagesync/main.go
-    binary: cede
+    binary: imagesync
     env:
       - CGO_ENABLED=1
     goos:
       - linux
     goarch:
-      - 386
       - amd64
+    flags:
+      - -tags="containers_image_openpgp exclude_graphdriver_btrfs btrfs_noversion exclude_graphdriver_devicemapper selinux seccomp varlink"
     ignore:
       - goos: darwin
         goarch: 386
