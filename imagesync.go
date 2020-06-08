@@ -14,6 +14,15 @@ import (
 	"sync"
 )
 
+const sourceImagePolicy = `{
+  "default": [
+    {
+      "type": "insecureAcceptAnything"
+    }
+  ]
+}
+`
+
 var wg sync.WaitGroup
 
 type copyImageInput struct {
@@ -130,7 +139,10 @@ func Execute() error {
 						wg.Done()
 						return
 					}
-					input.copyImage(tag)
+					err := input.copyImage(tag)
+					if err != nil {
+						logrus.Infof("failed %s", err.Error())
+					}
 				}
 			}()
 		}
@@ -154,19 +166,37 @@ func Execute() error {
 	return nil
 }
 
-func (ci *copyImageInput) copyImage(tag string) {
+func (ci *copyImageInput) copyImage(tag string) error {
 
-	destRef, _ := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.dest, tag))
-	srcRef, _ := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.src, tag))
+	destRef, err := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.dest, tag))
+	if err != nil {
+		return errors.WithMessagef(err, "tag=%s: parsing dest reference", tag)
+	}
 
-	policy, _ := signature.DefaultPolicy(nil)
-	policyContext, _ := signature.NewPolicyContext(policy)
+	srcRef, err := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.src, tag))
+	if err != nil {
+		return errors.WithMessagef(err, "tag=%s: parsing src reference", "")
+	}
 
-	copy.Image(ci.context, policyContext, destRef, srcRef, &copy.Options{
+	policy, err := signature.NewPolicyFromBytes([]byte(sourceImagePolicy))
+	if err != nil {
+		return errors.WithMessage(err, "creating policy")
+	}
+	policyContext, err := signature.NewPolicyContext(policy)
+	if err != nil {
+		return errors.WithMessage(err, "creating policy context")
+	}
+
+	_, err = copy.Image(ci.context, policyContext, destRef, srcRef, &copy.Options{
 		ReportWriter:   os.Stdout,
 		DestinationCtx: ci.destSystemContext,
 		SourceCtx:      ci.srcSystemContext,
 	})
+	if err != nil {
+		return errors.WithMessage(err, "copying image")
+	}
+
+	return nil
 }
 
 func targetTags(overwrite bool, src, dest []string) []string {

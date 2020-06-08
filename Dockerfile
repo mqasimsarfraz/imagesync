@@ -24,8 +24,6 @@ RUN apt -qq update && \
     apt install -y libgpgme-dev --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-COPY policy.json /etc/containers/policy.json
-
 COPY --from=go-builder /out/imagesync /
 
 ENTRYPOINT ["/imagesync"]
