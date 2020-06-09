@@ -1,6 +1,6 @@
 before:
   hooks:
-    - apk add gpgme-dev
+    - apt install libgpgme-dev
     - go mod download
 builds:
   - main: ./cmd/imagesync/main.go

@@ -110,7 +110,7 @@ func Execute() error {
 			os.Exit(0)
 		}
 
-		logrus.Infof("Starting image sync with %d tags", len(targetTags))
+		logrus.Infof("Starting image sync with total-tags=%d tags=%v", len(targetTags), targetTags)
 
 		// limit the go routines to avoid 429 on registries
 		maxConcurrentTags := c.Int("max-concurrent-tags")
