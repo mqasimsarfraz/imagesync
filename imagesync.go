@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -58,6 +59,10 @@ func Execute() error {
 			Usage: "Type of the destination docker registry",
 			Value: "insecure",
 		},
+		cli.StringFlag{
+			Name:  "skip-tags",
+			Usage: "Comma separated list of tags to be skipped",
+		},
 		cli.BoolFlag{
 			Name:  "overwrite",
 			Usage: "Use this to copy/override all the tags.",
@@ -100,6 +105,12 @@ func Execute() error {
 		srcTags, err := docker.GetRepositoryTags(ctx, srcSysCtx, srcRegistry)
 		if err != nil {
 			return errors.WithMessage(err, "getting source tags")
+		}
+
+		// filter tags
+		shouldSkip := c.String("skip-tags")
+		if shouldSkip != "" {
+			srcTags = filterSourceTags(srcTags, strings.Split(shouldSkip, ","))
 		}
 
 		destTags, _ := docker.GetRepositoryTags(ctx, destSysCtx, destRegistry)
@@ -197,6 +208,26 @@ func (ci *copyImageInput) copyImage(tag string) error {
 	}
 
 	return nil
+}
+
+func filterSourceTags(src []string, shouldSkip []string) []string {
+	var result []string
+	for _, tag := range src {
+		if contains(shouldSkip, tag) {
+			continue
+		}
+		result = append(result, tag)
+	}
+	return result
+}
+
+func contains(slice []string, str string) bool {
+	for _, item := range slice {
+		if item == str {
+			return true
+		}
+	}
+	return false
 }
 
 func targetTags(overwrite bool, src, dest []string) []string {
