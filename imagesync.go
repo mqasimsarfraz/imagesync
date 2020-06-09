@@ -39,6 +39,7 @@ func Execute() error {
 	app := cli.NewApp()
 	app.Name = "imagesync"
 	app.Usage = "Sync docker images between repositories."
+	app.Version = "v0.6.1"
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -121,7 +122,7 @@ func Execute() error {
 			os.Exit(0)
 		}
 
-		logrus.Infof("Starting image sync with total-tags=%d tags=%v", len(targetTags), targetTags)
+		logrus.Infof("Starting image sync with total-tags=%d tags=%v source=%s destination=%s", len(targetTags), targetTags, srcRegistry.DockerReference().Name(), destRegistry.DockerReference().Name())
 
 		// limit the go routines to avoid 429 on registries
 		maxConcurrentTags := c.Int("max-concurrent-tags")
