@@ -1,5 +1,6 @@
 before:
   hooks:
+    - apk add gpgme-dev
     - go mod download
 builds:
   - main: ./cmd/imagesync/main.go
@@ -10,8 +11,6 @@ builds:
       - linux
     goarch:
       - amd64
-    flags:
-      - -tags="containers_image_openpgp exclude_graphdriver_btrfs btrfs_noversion exclude_graphdriver_devicemapper selinux seccomp varlink"
     ignore:
       - goos: darwin
         goarch: 386
