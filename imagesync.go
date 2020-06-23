@@ -39,7 +39,7 @@ func Execute() error {
 	app := cli.NewApp()
 	app.Name = "imagesync"
 	app.Usage = "Sync docker images between repositories."
-	app.Version = "v0.6.1"
+	app.Version = "v0.6.2"
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -71,7 +71,7 @@ func Execute() error {
 		cli.IntFlag{
 			Name:  "max-concurrent-tags",
 			Usage: "Maximum number of tags to be synced/copied in parallel.",
-			Value: 12,
+			Value: 1,
 		},
 	}
 
