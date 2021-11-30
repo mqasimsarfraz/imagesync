@@ -18,4 +18,4 @@ docker run -it --rm \
   -v "$PWD":/src \
   -w /src \
   -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
-  mailchain/goreleaser-xcgo:v0.9.0 release --rm-dist
+  iotmod/goreleaser-cgo-cross-compiler:1.16.3 goreleaser release --rm-dist
