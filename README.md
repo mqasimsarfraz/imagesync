@@ -4,12 +4,12 @@
     <a href="https://hub.docker.com/r/smqasims/imagesync" alt="Pulls">
         <img src="https://img.shields.io/docker/pulls/smqasims/imagesync.svg" /></a>
     <a href="https://mqasimsarfraz.github.io/" alt="Maintained">
-        <img src="https://img.shields.io/maintenance/yes/2020.svg" /></a>
+        <img src="https://img.shields.io/maintenance/yes/2021.svg" /></a>
         
 </p>
 
 # imagesync
-A tool to copy/sync docker images between registries without docker deamon.
+A tool to copy/sync docker images between registries without docker demon.
 ## Command
 ```
 docker run --rm -it smqasims/imagesync -h
@@ -23,7 +23,7 @@ USAGE:
    imagesync [global options] command [command options] [arguments...]
 
 VERSION:
-   0.0.0
+   1.0.0
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
@@ -39,9 +39,15 @@ GLOBAL OPTIONS:
 
 ```
 ## Note
-Currently it isn't possible to specify credentials for a private registry. But you can still use the `imagesync` if you are already logged in using docker cli. It will respect the credentials stored `~/.docker/config.json` via `docker login`. So in case you are running it in a container you need to mount this path:
+Currently, it isn't possible to specify credentials for a private registry. But you can still use the `imagesync` if you are already logged in using docker cli. It will respect the credentials stored `~/.docker/config.json` via `docker login`. So in case you are running it in a container you need to mount this path:
 ```
 docker run --rm -it  -v ${HOME}/.docker/config.json:/root/.docker/config.json  smqasims/imagesync -h
 ```
-## Todo(s):
-- Add support to choose image policies.
+
+## Dependencies
+Following needs to be installed in order to compile this locally:
+
+```
+dnf --enablerepo=powertools install gpgme-devel
+dnf install libassuan  libassuan-devel
+```

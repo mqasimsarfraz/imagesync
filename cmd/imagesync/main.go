@@ -1,9 +1,10 @@
 package main
 
 import (
-	imagesync "github.com/MQasimSarfraz/imagesync"
 	"log"
 	"os"
+
+	imagesync "github.com/MQasimSarfraz/imagesync"
 )
 
 func main() {

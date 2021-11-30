@@ -1,4 +1,4 @@
-FROM golang:1.14.4-stretch as go-builder
+FROM golang:1.17.3-stretch as go-builder
 
 ENV PACKAGE github.com/MQasimSarfraz/image-sync
 ENV CGO_ENABLED 1

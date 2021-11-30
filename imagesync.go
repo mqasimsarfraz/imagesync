@@ -3,6 +3,10 @@ package imagesync
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
+	"sync"
+
 	"github.com/containers/image/copy"
 	"github.com/containers/image/docker"
 	"github.com/containers/image/signature"
@@ -10,9 +14,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-	"os"
-	"strings"
-	"sync"
 )
 
 const sourceImagePolicy = `{
@@ -39,7 +40,7 @@ func Execute() error {
 	app := cli.NewApp()
 	app.Name = "imagesync"
 	app.Usage = "Sync docker images between repositories."
-	app.Version = "v0.6.2"
+	app.Version = "v1.0.0"
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
