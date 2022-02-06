@@ -40,7 +40,7 @@ func Execute() error {
 	app := cli.NewApp()
 	app.Name = "imagesync"
 	app.Usage = "Sync docker images between repositories."
-	app.Version = "v1.0.0"
+	app.Version = "v1.0.2"
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{

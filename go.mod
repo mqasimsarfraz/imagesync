@@ -24,9 +24,11 @@ require (
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mtrmac/gpgme v0.0.0-20170102180018-b2432428689c // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
+	github.com/opencontainers/runc v1.0.3 // indirect
 	github.com/vbauerster/mpb v3.4.0+incompatible // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.1.0 // indirect
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 	k8s.io/client-go v11.0.0+incompatible // indirect
 )
