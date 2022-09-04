@@ -14,14 +14,14 @@ import (
 	"github.com/urfave/cli"
 )
 
-var wg sync.WaitGroup
+var Version string
 
 func Execute() error {
 
 	app := cli.NewApp()
 	app.Name = "imagesync"
-	app.Usage = "Sync docker images between repositories."
-	app.Version = "v1.0.2"
+	app.Usage = "Sync docker images between registries."
+	app.Version = Version
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -107,8 +107,8 @@ func Execute() error {
 			numberOfConcurrentTags = len(tags)
 		}
 
+		var wg sync.WaitGroup
 		ch := make(chan string, len(tags))
-
 		wg.Add(numberOfConcurrentTags)
 
 		copier := &ImageCopier{

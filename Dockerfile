@@ -1,5 +1,8 @@
 FROM golang:1.19.0-bullseye as go-builder
 
+ARG IMAGESYNC_VERSION
+ENV IMAGESYNC_VERSION ${IMAGESYNC_VERSION}
+
 ENV PACKAGE github.com/MQasimSarfraz/image-sync
 ENV CGO_ENABLED 1
 
@@ -14,7 +17,10 @@ RUN mkdir -p /out && \
 COPY . ./
 RUN go vet ./...
 RUN go test --parallel=1 ./...
-RUN go build -v -ldflags="-s -w" -o /out/imagesync ./cmd/imagesync
+RUN go build -v \
+    -ldflags="-s -w \
+      -X 'github.com/MQasimSarfraz/imagesync.Version=${IMAGESYNC_VERSION}'"\
+    -o /out/imagesync ./cmd/imagesync
 
 
 # build the final container image

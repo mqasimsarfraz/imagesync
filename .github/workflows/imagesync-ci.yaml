@@ -35,4 +35,6 @@ jobs:
         with:
           push: true
           tags: ghcr.io/mqasimsarfraz/imagesync:latest
+          build-args: |
+            IMAGESYNC_VERSION=${{ github.ref_name }}
 
