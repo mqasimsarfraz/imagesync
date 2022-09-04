@@ -111,7 +111,8 @@ func Execute() error {
 		ch := make(chan string, len(tags))
 		wg.Add(numberOfConcurrentTags)
 
-		copier := &ImageCopier{
+		var copier ImageCopier
+		copyOpts := ImageCopierOptions{
 			dest:              c.String("dest"),
 			destSystemContext: destSysCtx,
 			src:               c.String("src"),
@@ -126,7 +127,7 @@ func Execute() error {
 						wg.Done()
 						return
 					}
-					err := copier.Copy(ctx, tag)
+					err := copier.Copy(ctx, copyOpts, tag)
 					if err != nil {
 						logrus.Infof("failed %s", err.Error())
 					}

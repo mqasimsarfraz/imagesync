@@ -12,7 +12,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-type ImageCopier struct {
+type ImageCopier struct{}
+
+type ImageCopierOptions struct {
 	src              string
 	srcSystemContext *types.SystemContext
 
@@ -20,13 +22,13 @@ type ImageCopier struct {
 	destSystemContext *types.SystemContext
 }
 
-func (ic *ImageCopier) Copy(ctx context.Context, tag string) error {
-	destRef, err := docker.ParseReference(fmt.Sprintf("//%s:%s", ic.dest, tag))
+func (ImageCopier) Copy(ctx context.Context, opts ImageCopierOptions, tag string) error {
+	destRef, err := docker.ParseReference(fmt.Sprintf("//%s:%s", opts.dest, tag))
 	if err != nil {
 		return errors.WithMessagef(err, "tag=%s: parsing dest reference", tag)
 	}
 
-	srcRef, err := docker.ParseReference(fmt.Sprintf("//%s:%s", ic.src, tag))
+	srcRef, err := docker.ParseReference(fmt.Sprintf("//%s:%s", opts.src, tag))
 	if err != nil {
 		return errors.WithMessagef(err, "tag=%s: parsing src reference", "")
 	}
@@ -40,8 +42,8 @@ func (ic *ImageCopier) Copy(ctx context.Context, tag string) error {
 
 	_, err = copy.Image(ctx, policyContext, destRef, srcRef, &copy.Options{
 		ReportWriter:   os.Stdout,
-		DestinationCtx: ic.destSystemContext,
-		SourceCtx:      ic.srcSystemContext,
+		DestinationCtx: opts.destSystemContext,
+		SourceCtx:      opts.srcSystemContext,
 	})
 	if err != nil {
 		return errors.WithMessage(err, "copying image")

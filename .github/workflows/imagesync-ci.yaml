@@ -30,11 +30,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Determine tag for container image
+        id: image-tag
+        run: |
+          if [[ "${{ github.ref_name }}" == "master" ]]; then
+            echo "::set-output name=value::latest"
+          else
+            echo "::set-output name=value::${{ github.ref_name }}"
+          fi
+
       - name: Build and Push
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/mqasimsarfraz/imagesync:latest
+          tags: ghcr.io/mqasimsarfraz/imagesync:${{ steps.image-tag.outputs.value }}
           build-args: |
             IMAGESYNC_VERSION=${{ github.ref_name }}
 
