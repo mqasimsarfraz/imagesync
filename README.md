@@ -1,20 +1,23 @@
-<p align="left">
-    <a href="https://hub.docker.com/r/smqasims/imagesync/builds" alt="Build">
-        <img src="https://img.shields.io/docker/cloud/build/smqasims/imagesync.svg" /></a>
+<p>
     <a href="https://hub.docker.com/r/smqasims/imagesync" alt="Pulls">
         <img src="https://img.shields.io/docker/pulls/smqasims/imagesync.svg" /></a>
     <a href="https://mqasimsarfraz.github.io/" alt="Maintained">
         <img src="https://img.shields.io/maintenance/yes/2022.svg" /></a>
-        
+
 </p>
 
 # imagesync
+
 A tool to copy/sync docker images between registries without docker demon.
+
 ## Command
+
 ```
 docker run --rm -it smqasims/imagesync:v1.0.2 -h
 ```
+
 ## Usage
+
 ```
 NAME:
    imagesync - Sync docker images between repositories.
@@ -38,21 +41,29 @@ GLOBAL OPTIONS:
    --version, -v           print the version
 
 ```
-## Note
-Currently, it isn't possible to specify credentials for a private registry. But you can still use the `imagesync` if you are already logged in using docker cli. It will respect the credentials stored `~/.docker/config.json` via `docker login`. So in case you are running it in a container you need to mount this path:
+
+## Private Registries
+
+`imagesync` will respect the credentials stored in `~/.docker/config.json` via `docker login` etc. So in case you are
+running it in a container you need to mount the path with credentials as:
+
 ```
 docker run --rm -it  -v ${HOME}/.docker/config.json:/root/.docker/config.json  smqasims/imagesync:v1.0.2 -h
 ```
 
-## Dependencies
-Following needs to be installed in order to compile this locally:
+## Contributing/Dependencies
+
+Following needs to be installed in order to compile the project locally:
 
 ### fedora/centos
+
 ```
 dnf --enablerepo=powertools install gpgme-devel
 dnf install libassuan  libassuan-devel
 ```
+
 ### debain/ubuntu
+
 ```
 sudo apt install libgpgme-dev libassuan-dev libbtrfs-dev libdevmapper-dev pkg-config
 ```
