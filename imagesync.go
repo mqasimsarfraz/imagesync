@@ -7,33 +7,14 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/containers/image/v5/copy"
 	"github.com/containers/image/v5/docker"
-	"github.com/containers/image/v5/signature"
 	"github.com/containers/image/v5/types"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
-const sourceImagePolicy = `{
-  "default": [
-    {
-      "type": "insecureAcceptAnything"
-    }
-  ]
-}
-`
-
 var wg sync.WaitGroup
-
-type copyImageInput struct {
-	context           context.Context
-	dest              string
-	destSystemContext *types.SystemContext
-	src               string
-	srcSystemContext  *types.SystemContext
-}
 
 func Execute() error {
 
@@ -111,27 +92,26 @@ func Execute() error {
 
 		destTags, _ := docker.GetRepositoryTags(ctx, destSysCtx, destRegistry)
 
-		targetTags := targetTags(c.Bool("overwrite"), srcTags, destTags)
-		if len(targetTags) == 0 {
+		tags := targetTags(c.Bool("overwrite"), srcTags, destTags)
+		if len(tags) == 0 {
 			logrus.Info("Image in registries are already synced")
 			os.Exit(0)
 		}
 
-		logrus.Infof("Starting image sync with total-tags=%d tags=%v source=%s destination=%s", len(targetTags), targetTags, srcRegistry.DockerReference().Name(), destRegistry.DockerReference().Name())
+		logrus.Infof("Starting image sync with total-tags=%d tags=%v source=%s destination=%s", len(tags), tags, srcRegistry.DockerReference().Name(), destRegistry.DockerReference().Name())
 
 		// limit the go routines to avoid 429 on registries
 		maxConcurrentTags := c.Int("max-concurrent-tags")
 		numberOfConcurrentTags := maxConcurrentTags
-		if len(targetTags) < maxConcurrentTags {
-			numberOfConcurrentTags = len(targetTags)
+		if len(tags) < maxConcurrentTags {
+			numberOfConcurrentTags = len(tags)
 		}
 
-		ch := make(chan string, len(targetTags))
+		ch := make(chan string, len(tags))
 
 		wg.Add(numberOfConcurrentTags)
 
-		input := &copyImageInput{
-			context:           ctx,
+		copier := &ImageCopier{
 			dest:              c.String("dest"),
 			destSystemContext: destSysCtx,
 			src:               c.String("src"),
@@ -146,7 +126,7 @@ func Execute() error {
 						wg.Done()
 						return
 					}
-					err := input.copyImage(tag)
+					err := copier.Copy(ctx, tag)
 					if err != nil {
 						logrus.Infof("failed %s", err.Error())
 					}
@@ -154,7 +134,7 @@ func Execute() error {
 			}()
 		}
 
-		for _, tag := range targetTags {
+		for _, tag := range tags {
 			ch <- tag
 		}
 
@@ -166,43 +146,9 @@ func Execute() error {
 		return nil
 	}
 
-	err := app.Run(os.Args)
-	if err != nil {
+	if err := app.Run(os.Args); err != nil {
 		return err
 	}
-	return nil
-}
-
-func (ci *copyImageInput) copyImage(tag string) error {
-
-	destRef, err := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.dest, tag))
-	if err != nil {
-		return errors.WithMessagef(err, "tag=%s: parsing dest reference", tag)
-	}
-
-	srcRef, err := docker.ParseReference(fmt.Sprintf("//%s:%s", ci.src, tag))
-	if err != nil {
-		return errors.WithMessagef(err, "tag=%s: parsing src reference", "")
-	}
-
-	policy, err := signature.NewPolicyFromBytes([]byte(sourceImagePolicy))
-	if err != nil {
-		return errors.WithMessage(err, "creating policy")
-	}
-	policyContext, err := signature.NewPolicyContext(policy)
-	if err != nil {
-		return errors.WithMessage(err, "creating policy context")
-	}
-
-	_, err = copy.Image(ci.context, policyContext, destRef, srcRef, &copy.Options{
-		ReportWriter:   os.Stdout,
-		DestinationCtx: ci.destSystemContext,
-		SourceCtx:      ci.srcSystemContext,
-	})
-	if err != nil {
-		return errors.WithMessage(err, "copying image")
-	}
-
 	return nil
 }
 
