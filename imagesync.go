@@ -7,10 +7,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/containers/image/copy"
-	"github.com/containers/image/docker"
-	"github.com/containers/image/signature"
-	"github.com/containers/image/types"
+	"github.com/containers/image/v5/copy"
+	"github.com/containers/image/v5/docker"
+	"github.com/containers/image/v5/signature"
+	"github.com/containers/image/v5/types"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -90,18 +90,12 @@ func Execute() error {
 		ctx := context.Background()
 		var srcSysCtx *types.SystemContext
 		if c.String("src-type") == "insecure" {
-			srcSysCtx, err = newSystemContextWithInsecureRegistry()
-			if err != nil {
-				return errors.WithMessage(err, "setting up source system context")
-			}
+			srcSysCtx = &types.SystemContext{DockerInsecureSkipTLSVerify: types.NewOptionalBool(true)}
 		}
 
 		var destSysCtx *types.SystemContext
 		if c.String("dest-type") == "insecure" {
-			destSysCtx, err = newSystemContextWithInsecureRegistry()
-			if err != nil {
-				return errors.WithMessage(err, "setting up dest system context")
-			}
+			destSysCtx = &types.SystemContext{DockerInsecureSkipTLSVerify: types.NewOptionalBool(true)}
 		}
 
 		srcTags, err := docker.GetRepositoryTags(ctx, srcSysCtx, srcRegistry)

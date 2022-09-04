@@ -47,7 +47,12 @@ docker run --rm -it  -v ${HOME}/.docker/config.json:/root/.docker/config.json  s
 ## Dependencies
 Following needs to be installed in order to compile this locally:
 
+### fedora/centos
 ```
 dnf --enablerepo=powertools install gpgme-devel
 dnf install libassuan  libassuan-devel
+```
+### debain/ubuntu
+```
+sudo apt install libgpgme-dev libassuan-dev libbtrfs-dev libdevmapper-dev pkg-config
 ```
