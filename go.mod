@@ -1,10 +1,9 @@
-module github.com/MQasimSarfraz/imagesync
+module github.com/mqasimsarfraz/imagesync
 
 go 1.17
 
 require (
 	github.com/containers/image/v5 v5.22.0
-	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/urfave/cli v1.22.4
 )
@@ -46,6 +45,7 @@ require (
 	github.com/opencontainers/image-spec v1.0.3-0.20220114050600-8b9d41f48198 // indirect
 	github.com/opencontainers/runc v1.1.3 // indirect
 	github.com/opencontainers/runtime-spec v1.0.3-0.20210326190908-1c3f411f0417 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/proglottis/gpgme v0.1.3 // indirect
 	github.com/prometheus/client_golang v1.12.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect

@@ -4,12 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/MQasimSarfraz/imagesync"
+	"github.com/mqasimsarfraz/imagesync"
 )
 
 func main() {
-	err := imagesync.Execute()
-	if err != nil {
+	if err := imagesync.Execute(); err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
