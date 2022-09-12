@@ -27,27 +27,27 @@ func Execute() error {
 
 	app := cli.NewApp()
 	app.Name = "imagesync"
-	app.Usage = "Sync docker images in registries."
+	app.Usage = "Sync container images in registries."
 	app.Version = Version
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:     "src, s",
-			Usage:    "Reference for the source docker image/repository.",
+			Usage:    "Reference for the source container image/repository.",
 			Required: true,
 		},
 		cli.BoolFlag{
 			Name:  "src-strict-tls",
-			Usage: "Enable strict TLS for connections to source docker registry.",
+			Usage: "Enable strict TLS for connections to source container registry.",
 		},
 		cli.StringFlag{
 			Name:     "dest, d",
-			Usage:    "Reference for the destination docker repository.",
+			Usage:    "Reference for the destination container repository.",
 			Required: true,
 		},
 		cli.BoolFlag{
 			Name:  "dest-strict-tls",
-			Usage: "Enable strict TLS for connections to destination docker registry",
+			Usage: "Enable strict TLS for connections to destination container registry",
 		},
 		cli.StringFlag{
 			Name:  "skip-tags",

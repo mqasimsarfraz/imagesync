@@ -8,7 +8,7 @@
 
 # imagesync
 
-A tool to copy/sync docker images in registries without docker demon.
+A tool to copy/sync container images in registries without a demon.
 
 ## Command
 
