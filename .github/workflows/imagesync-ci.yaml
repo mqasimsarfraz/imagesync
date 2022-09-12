@@ -2,6 +2,7 @@ name: "Imagesync CI"
 on:
   push:
     branches: [ master ]
+    tags: [ v* ]
 
 permissions: read-all
 

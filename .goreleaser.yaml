@@ -1,6 +1,7 @@
 before:
   hooks:
-    - apt install libgpgme-dev -y
+    - apt update
+    - apt install libgpgme-dev libassuan-dev libbtrfs-dev libdevmapper-dev pkg-config -y
     - go mod download
 builds:
   - main: ./cmd/imagesync/main.go

@@ -47,11 +47,11 @@ func Execute() error {
 		},
 		cli.BoolFlag{
 			Name:  "dest-strict-tls",
-			Usage: "Enable strict TLS for connections to destination container registry",
+			Usage: "Enable strict TLS for connections to destination container registry.",
 		},
 		cli.StringFlag{
 			Name:  "skip-tags",
-			Usage: "Comma separated list of tags to be skipped",
+			Usage: "Comma separated list of tags to be skipped.",
 		},
 		cli.BoolFlag{
 			Name:  "overwrite",
