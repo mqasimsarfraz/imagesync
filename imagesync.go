@@ -37,13 +37,8 @@ func Execute() error {
 			Required: true,
 		},
 		cli.BoolFlag{
-			Name:  "src-disable-tls",
-			Usage: "Disable TLS for connections to source docker registry.",
-		},
-		cli.StringFlag{
-			Name:  "src-type",
-			Usage: "[Deprecated] Type of the source docker registry",
-			Value: "insecure",
+			Name:  "src-strict-tls",
+			Usage: "Enable strict TLS for connections to source docker registry.",
 		},
 		cli.StringFlag{
 			Name:     "dest, d",
@@ -51,13 +46,8 @@ func Execute() error {
 			Required: true,
 		},
 		cli.BoolFlag{
-			Name:  "dest-disable-tls",
-			Usage: "Disable TLS for connections to destination docker registry",
-		},
-		cli.StringFlag{
-			Name:  "dest-type",
-			Usage: "[Deprecated] Type of the destination docker registry",
-			Value: "insecure",
+			Name:  "dest-strict-tls",
+			Usage: "Enable strict TLS for connections to destination docker registry",
 		},
 		cli.StringFlag{
 			Name:  "skip-tags",
@@ -83,8 +73,8 @@ func Execute() error {
 }
 
 // DetectAndCopyImage will try to detect the source type and will
-//
 // copy the image. Detection is based on following rules if:
+//
 // - src is a directory assume it is an OCI layout.
 // - src is file detect for oci-archive or docker-archive.
 // - src is an image with a tag copy single image to dest.
@@ -102,13 +92,10 @@ func DetectAndCopyImage(c *cli.Context) error {
 		ReportWriter:       os.Stdout,
 		ImageListSelection: copy.CopyAllImages,
 	}
-	if c.String("dest-type") != "" || c.String("src-type") != "" {
-		logrus.Warning("src-type/dest-type flags deprecated and will be remove in next release")
-	}
-	if c.String("dest-type") == "insecure" || c.Bool("dest-disable-tls") {
+	if !c.Bool("dest-strict-tls") {
 		opts.DestinationCtx = &types.SystemContext{DockerInsecureSkipTLSVerify: types.NewOptionalBool(true)}
 	}
-	if c.String("src-type") == "insecure" || c.Bool("src-disable-tls") {
+	if !c.Bool("src-strict-tls") {
 		opts.SourceCtx = &types.SystemContext{DockerInsecureSkipTLSVerify: types.NewOptionalBool(true)}
 	}
 
