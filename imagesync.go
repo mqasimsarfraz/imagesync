@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -50,6 +51,10 @@ func Execute() error {
 			Usage: "Enable strict TLS for connections to destination container registry.",
 		},
 		cli.StringFlag{
+			Name:  "tags-patterns",
+			Usage: "Regex pattern to select for tag to-be synced.",
+		},
+		cli.StringFlag{
 			Name:  "skip-tags",
 			Usage: "Comma separated list of tags to be skipped.",
 		},
@@ -75,11 +80,11 @@ func Execute() error {
 // DetectAndCopyImage will try to detect the source type and will
 // copy the image. Detection is based on following rules if:
 //
-// - src is a directory assume it is an OCI layout.
-// - src is file detect for oci-archive or docker-archive.
-// - src is an image with a tag copy single image to dest.
-// - none of the above then it is an entire repository sync
-//	 to sync the repositories.
+//   - src is a directory assume it is an OCI layout.
+//   - src is file detect for oci-archive or docker-archive.
+//   - src is an image with a tag copy single image to dest.
+//   - none of the above then it is an entire repository sync
+//     to sync the repositories.
 func DetectAndCopyImage(c *cli.Context) error {
 	dest := c.String("dest")
 	destRef, err := docker.ParseReference(fmt.Sprintf("//%s", dest))
@@ -160,6 +165,24 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 	shouldSkip := cliCtx.String("skip-tags")
 	if shouldSkip != "" {
 		srcTags = subtract(srcTags, strings.Split(shouldSkip, ","))
+	}
+
+	var tagPattern *regexp.Regexp
+	// selected tags
+	tagPatternRaw := cliCtx.String("tags-patterns")
+	if tagPatternRaw != "" {
+		tagPattern, err = regexp.CompilePOSIX(tagPatternRaw)
+		if err != nil {
+			return fmt.Errorf("%q is not valid regexp", tagPatternRaw)
+		}
+
+		selected := make([]string, 0, len(srcTags))
+		for _, tag := range srcTags {
+			if tagPattern.MatchString(tag) {
+				selected = append(selected, tag)
+			}
+		}
+		srcTags = selected
 	}
 
 	var tags []string
