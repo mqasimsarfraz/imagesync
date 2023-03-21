@@ -51,7 +51,7 @@ func Execute() error {
 			Usage: "Enable strict TLS for connections to destination container registry.",
 		},
 		cli.StringFlag{
-			Name:  "tags-patterns",
+			Name:  "tags-pattern",
 			Usage: "Regex pattern to select tags for syncing.",
 		},
 		cli.StringFlag{
@@ -169,7 +169,7 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 
 	var tagPattern *regexp.Regexp
 	// selected tags
-	tagPatternRaw := cliCtx.String("tags-patterns")
+	tagPatternRaw := cliCtx.String("tags-pattern")
 	if tagPatternRaw != "" {
 		tagPattern, err = regexp.CompilePOSIX(tagPatternRaw)
 		if err != nil {
