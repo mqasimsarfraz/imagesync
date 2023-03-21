@@ -52,7 +52,7 @@ func Execute() error {
 		},
 		cli.StringFlag{
 			Name:  "tags-patterns",
-			Usage: "Regex pattern to select for tag to-be synced.",
+			Usage: "Regex pattern to select tags for syncing.",
 		},
 		cli.StringFlag{
 			Name:  "skip-tags",
