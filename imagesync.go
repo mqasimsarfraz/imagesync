@@ -171,6 +171,7 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 		srcTags = subtract(srcTags, strings.Split(shouldSkip, ","))
 	}
 
+	// match tags
 	if pattern := cliCtx.String("tags-pattern"); pattern != "" {
 		re, err := regexp.CompilePOSIX(pattern)
 		if err != nil {
@@ -179,7 +180,7 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 		srcTags = include(srcTags, re)
 	}
 
-	// selected tags
+	// exclude tags
 	if pattern := cliCtx.String("skip-tags-pattern"); pattern != "" {
 		re, err := regexp.CompilePOSIX(pattern)
 		if err != nil {
