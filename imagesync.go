@@ -33,8 +33,9 @@ func Execute() error {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "src, s",
-			Usage: "Reference for the source container image/repository.",
+			Name:     "src, s",
+			Usage:    "Reference for the source container image/repository.",
+			Required: true,
 		},
 		cli.BoolFlag{
 			Name:  "src-strict-tls",
