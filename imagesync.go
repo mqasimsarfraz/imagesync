@@ -176,14 +176,7 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 		if err != nil {
 			return fmt.Errorf("%q is not valid regexp", pattern)
 		}
-
-		selected := make([]string, 0, len(srcTags))
-		for _, tag := range srcTags {
-			if re.MatchString(tag) {
-				selected = append(selected, tag)
-			}
-		}
-		srcTags = selected
+		srcTags = include(srcTags, re)
 	}
 
 	// selected tags
@@ -192,14 +185,7 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 		if err != nil {
 			return fmt.Errorf("%q is not valid regexp", pattern)
 		}
-
-		selected := make([]string, 0, len(srcTags))
-		for _, tag := range srcTags {
-			if !re.MatchString(tag) {
-				selected = append(selected, tag)
-			}
-		}
-		srcTags = selected
+		srcTags = exclude(srcTags, re)
 	}
 
 	var tags []string
@@ -295,4 +281,24 @@ func contains(items []string, item string) bool {
 		}
 	}
 	return false
+}
+
+func include(items []string, pattern *regexp.Regexp) []string {
+	selected := make([]string, 0, len(items))
+	for _, tag := range items {
+		if pattern.MatchString(tag) {
+			selected = append(selected, tag)
+		}
+	}
+	return selected
+}
+
+func exclude(items []string, pattern *regexp.Regexp) []string {
+	selected := make([]string, 0, len(items))
+	for _, tag := range items {
+		if !pattern.MatchString(tag) {
+			selected = append(selected, tag)
+		}
+	}
+	return selected
 }
