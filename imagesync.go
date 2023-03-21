@@ -32,42 +32,40 @@ func Execute() error {
 	app.Version = Version
 
 	app.Flags = []cli.Flag{
-		&cli.StringFlag{
-			Name:    "src",
-			Usage:   "Reference for the source container image/repository.",
-			Aliases: []string{"s"},
+		cli.StringFlag{
+			Name:  "src, s",
+			Usage: "Reference for the source container image/repository.",
 		},
-		&cli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "src-strict-tls",
 			Usage: "Enable strict TLS for connections to source container registry.",
 		},
-		&cli.StringFlag{
-			Name:     "dest",
+		cli.StringFlag{
+			Name:     "dest, d",
 			Usage:    "Reference for the destination container repository.",
-			Aliases:  []string{"d"},
 			Required: true,
 		},
-		&cli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "dest-strict-tls",
 			Usage: "Enable strict TLS for connections to destination container registry.",
 		},
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "tags-pattern",
 			Usage: "Regex pattern to select tags for syncing.",
 		},
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "skip-tags-pattern",
 			Usage: "Regex pattern to exclude tags.",
 		},
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "skip-tags",
 			Usage: "Comma separated list of tags to be skipped.",
 		},
-		&cli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "overwrite",
 			Usage: "Use this to copy/override all the tags.",
 		},
-		&cli.IntFlag{
+		cli.IntFlag{
 			Name:  "max-concurrent-tags",
 			Usage: "Maximum number of tags to be synced/copied in parallel.",
 			Value: 1,
