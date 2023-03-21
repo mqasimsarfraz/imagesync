@@ -55,6 +55,10 @@ func Execute() error {
 			Usage: "Regex pattern to select tags for syncing.",
 		},
 		cli.StringFlag{
+			Name:  "skip-tags-pattern",
+			Usage: "Regex pattern to exclude tags.",
+		},
+		cli.StringFlag{
 			Name:  "skip-tags",
 			Usage: "Comma separated list of tags to be skipped.",
 		},
@@ -167,18 +171,31 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 		srcTags = subtract(srcTags, strings.Split(shouldSkip, ","))
 	}
 
-	var tagPattern *regexp.Regexp
-	// selected tags
-	tagPatternRaw := cliCtx.String("tags-pattern")
-	if tagPatternRaw != "" {
-		tagPattern, err = regexp.CompilePOSIX(tagPatternRaw)
+	if pattern := cliCtx.String("tags-pattern"); pattern != "" {
+		re, err := regexp.CompilePOSIX(pattern)
 		if err != nil {
-			return fmt.Errorf("%q is not valid regexp", tagPatternRaw)
+			return fmt.Errorf("%q is not valid regexp", pattern)
 		}
 
 		selected := make([]string, 0, len(srcTags))
 		for _, tag := range srcTags {
-			if tagPattern.MatchString(tag) {
+			if re.MatchString(tag) {
+				selected = append(selected, tag)
+			}
+		}
+		srcTags = selected
+	}
+
+	// selected tags
+	if pattern := cliCtx.String("skip-tags-pattern"); pattern != "" {
+		re, err := regexp.CompilePOSIX(pattern)
+		if err != nil {
+			return fmt.Errorf("%q is not valid regexp", pattern)
+		}
+
+		selected := make([]string, 0, len(srcTags))
+		for _, tag := range srcTags {
+			if !re.MatchString(tag) {
 				selected = append(selected, tag)
 			}
 		}

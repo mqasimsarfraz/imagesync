@@ -43,6 +43,7 @@ GLOBAL OPTIONS:
    --dest value, -d value       Reference for the destination container repository.
    --dest-strict-tls            Enable strict TLS for connections to destination container registry.
    --tags-pattern value         Regex pattern to select for tag to-be synced.
+   --skip-tags-pattern value    Regex pattern to exclude tags.
    --skip-tags value            Comma separated list of tags to be skipped.
    --overwrite                  Use this to copy/override all the tags.
    --max-concurrent-tags value  Maximum number of tags to be synced/copied in parallel. (default: 1)
