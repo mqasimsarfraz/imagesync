@@ -173,7 +173,7 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 
 	// match tags
 	if pattern := cliCtx.String("tags-pattern"); pattern != "" {
-		re, err := regexp.CompilePOSIX(pattern)
+		re, err := regexp.Compile(pattern)
 		if err != nil {
 			return fmt.Errorf("%q is not valid regexp", pattern)
 		}
@@ -183,7 +183,7 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 
 	// exclude tags
 	if pattern := cliCtx.String("skip-tags-pattern"); pattern != "" {
-		re, err := regexp.CompilePOSIX(pattern)
+		re, err := regexp.Compile(pattern)
 		if err != nil {
 			return fmt.Errorf("%q is not valid regexp", pattern)
 		}
