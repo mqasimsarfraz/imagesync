@@ -13,21 +13,9 @@
 
 A tool to copy/sync container images in registries without a demon.
 
-## Command
-
-```
-docker run --rm -it ghcr.io/mqasimsarfraz/imagesync:v1.2.0 -h
-```
-
-or 
-
-```
+```bash
 imagesync -h
-```
 
-## Usage
-
-```
 NAME:
    imagesync - Sync container images in registries.
 
@@ -48,6 +36,26 @@ GLOBAL OPTIONS:
    --overwrite                  Use this to copy/override all the tags.
    --max-concurrent-tags value  Maximum number of tags to be synced/copied in parallel. (default: 1)
    --help, -h                   show help
+```
+
+## Installation
+
+### Binary
+
+You can download the binary from [releases](https://github.com/mqasimsarfraz/imagesync/releases) page and use it directly:
+
+```bash
+curl -L -O https://github.com/mqasimsarfraz/imagesync/releases/download/v1.2.0/imagesync_Linux_x86_64.tar.gz -o /tmp/imagesync_Linux_x86_64.tar.gz
+tar -xvf /tmp/imagesync_Linux_x86_64.tar.gz
+sudo mv /tmp/imagesync /usr/local/bin/
+```
+
+### Docker
+
+You can use the docker image to run `imagesync`:
+
+```bash
+docker run --rm -it  ghcr.io/mqasimsarfraz/imagesync:v1.2.0 -h
 ```
 
 ## Examples
