@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -15,6 +16,7 @@ import (
 	ocilayout "github.com/containers/image/v5/oci/layout"
 	"github.com/containers/image/v5/signature"
 	"github.com/containers/image/v5/types"
+	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -24,7 +26,6 @@ var Version string
 var ErrInvalidTag = errors.New("invalid tag")
 
 func Execute() error {
-
 	app := cli.NewApp()
 	app.Name = "imagesync"
 	app.Usage = "Sync container images in registries."
@@ -48,6 +49,14 @@ func Execute() error {
 		cli.BoolFlag{
 			Name:  "dest-strict-tls",
 			Usage: "Enable strict TLS for connections to destination container registry.",
+		},
+		cli.StringFlag{
+			Name:  "tags-pattern",
+			Usage: "Regex pattern to select tags for syncing.",
+		},
+		cli.StringFlag{
+			Name:  "skip-tags-pattern",
+			Usage: "Regex pattern to exclude tags.",
 		},
 		cli.StringFlag{
 			Name:  "skip-tags",
@@ -75,11 +84,11 @@ func Execute() error {
 // DetectAndCopyImage will try to detect the source type and will
 // copy the image. Detection is based on following rules if:
 //
-// - src is a directory assume it is an OCI layout.
-// - src is file detect for oci-archive or docker-archive.
-// - src is an image with a tag copy single image to dest.
-// - none of the above then it is an entire repository sync
-//	 to sync the repositories.
+//   - src is a directory assume it is an OCI layout.
+//   - src is file detect for oci-archive or docker-archive.
+//   - src is an image with a tag copy single image to dest.
+//   - none of the above then it is an entire repository sync
+//     to sync the repositories.
 func DetectAndCopyImage(c *cli.Context) error {
 	dest := c.String("dest")
 	destRef, err := docker.ParseReference(fmt.Sprintf("//%s", dest))
@@ -162,6 +171,25 @@ func copyRepository(ctx context.Context, cliCtx *cli.Context, destRepository, sr
 		srcTags = subtract(srcTags, strings.Split(shouldSkip, ","))
 	}
 
+	// match tags
+	if pattern := cliCtx.String("tags-pattern"); pattern != "" {
+		re, err := regexp.Compile(pattern)
+		if err != nil {
+			return fmt.Errorf("%q is not valid regexp", pattern)
+		}
+
+		srcTags = lo.Filter(srcTags, func(item string, index int) bool { return re.MatchString(item) })
+	}
+
+	// exclude tags
+	if pattern := cliCtx.String("skip-tags-pattern"); pattern != "" {
+		re, err := regexp.Compile(pattern)
+		if err != nil {
+			return fmt.Errorf("%q is not valid regexp", pattern)
+		}
+		srcTags = lo.Filter(srcTags, func(item string, index int) bool { return !re.MatchString(item) })
+	}
+
 	var tags []string
 	destTags, err := docker.GetRepositoryTags(ctx, opts.DestinationCtx, destRepository)
 	if cliCtx.Bool("overwrite") || err != nil {
@@ -240,19 +268,10 @@ func hasTag(ref string, imageRef types.ImageReference) bool {
 func subtract(ts1 []string, ts2 []string) []string {
 	var diff []string
 	for _, term := range ts1 {
-		if contains(ts2, term) {
+		if lo.Contains(ts2, term) {
 			continue
 		}
 		diff = append(diff, term)
 	}
 	return diff
-}
-
-func contains(items []string, item string) bool {
-	for _, it := range items {
-		if it == item {
-			return true
-		}
-	}
-	return false
 }
