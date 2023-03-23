@@ -4,7 +4,7 @@
     <a href="https://github.com/mqasimsarfraz/imagesync/actions/workflows/codeql-analysis.yml">
         <img src="https://github.com/mqasimsarfraz/imagesync/actions/workflows/codeql-analysis.yml/badge.svg" alt="codeql"/></a>
     <a href="https://mqasimsarfraz.github.io/">
-        <img src="https://img.shields.io/maintenance/yes/2022.svg" alt="maintained"/></a>
+        <img src="https://img.shields.io/maintenance/yes/2023.svg" alt="maintained"/></a>
     <a href="https://hub.docker.com/r/smqasims/imagesync">
         <img src="https://img.shields.io/docker/pulls/smqasims/imagesync.svg" alt="pulls"/></a>
 </p>
@@ -16,7 +16,7 @@ A tool to copy/sync container images in registries without a demon.
 ## Command
 
 ```
-docker run --rm -it smqasims/imagesync:v1.1.0 -h
+docker run --rm -it ghcr.io/mqasimsarfraz/imagesync:v1.2.0 -h
 ```
 
 or 
@@ -93,8 +93,12 @@ imagesync  -s library/alpine -d localhost:5000/library/alpine
 running it in a container you need to mount the path with credentials as:
 
 ```
-docker run --rm -it  -v ${HOME}/.docker/config.json:/root/.docker/config.json  smqasims/imagesync:v1.1.0 -h
+docker run --rm -it  -v ${HOME}/.docker/config.json:/root/.docker/config.json  ghcr.io/mqasimsarfraz/imagesync:v1.2.0 -h
 ```
+
+## Multi-arch images
+
+`imagesync` supports copying multi-arch images. So in case you are copying a multi-arch image it will copy all the platforms unlike `docker pull`/`docker push` approach which only copies the platform of the host.
 
 ## Contributing/Dependencies
 
