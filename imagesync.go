@@ -28,27 +28,27 @@ var ErrInvalidTag = errors.New("invalid tag")
 func Execute() error {
 	app := cli.NewApp()
 	app.Name = "imagesync"
-	app.Usage = "Sync container images in registries."
+	app.Usage = "Sync images in registries."
 	app.Version = Version
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:     "src, s",
-			Usage:    "Reference for the source container image/repository.",
+			Usage:    "Reference for the source image/repository.",
 			Required: true,
 		},
 		cli.BoolFlag{
 			Name:  "src-strict-tls",
-			Usage: "Enable strict TLS for connections to source container registry.",
+			Usage: "Enable strict TLS for connections to source registry.",
 		},
 		cli.StringFlag{
 			Name:     "dest, d",
-			Usage:    "Reference for the destination container repository.",
+			Usage:    "Reference for the destination repository.",
 			Required: true,
 		},
 		cli.BoolFlag{
 			Name:  "dest-strict-tls",
-			Usage: "Enable strict TLS for connections to destination container registry.",
+			Usage: "Enable strict TLS for connections to destination registry.",
 		},
 		cli.StringFlag{
 			Name:  "tags-pattern",

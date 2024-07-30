@@ -11,13 +11,13 @@
 
 # imagesync
 
-A tool to copy/sync container images in registries without a demon.
+A tool to copy/sync images in registries without a demon.
 
 ```bash
 imagesync -h
 
 NAME:
-   imagesync - Sync container images in registries.
+   imagesync - Sync images in registries.
 
 USAGE:
    imagesync [global options] command [command options] [arguments...]
@@ -45,9 +45,9 @@ GLOBAL OPTIONS:
 You can download the binary from [releases](https://github.com/mqasimsarfraz/imagesync/releases) page and use it directly:
 
 ```bash
-curl -L -O https://github.com/mqasimsarfraz/imagesync/releases/download/v1.2.0/imagesync_Linux_x86_64.tar.gz -o /tmp/imagesync_Linux_x86_64.tar.gz
-tar -xvf /tmp/imagesync_Linux_x86_64.tar.gz
-sudo mv /tmp/imagesync /usr/local/bin/
+VERSION=$(curl -s https://api.github.com/repos/mqasimsarfraz/imagesync/releases/latest | jq -r .tag_name)
+curl -sL https://github.com/mqasimsarfraz/imagesync/releases/download/${VERSION}/imagesync_Linux_x86_64.tar.gz | sudo tar -C /usr/local/bin -xzf - imagesync
+imagesync -h
 ```
 
 ### Docker
@@ -55,7 +55,8 @@ sudo mv /tmp/imagesync /usr/local/bin/
 You can use the docker image to run `imagesync`:
 
 ```bash
-docker run --rm -it  ghcr.io/mqasimsarfraz/imagesync:v1.2.0 -h
+VERSION=$(curl -s https://api.github.com/repos/mqasimsarfraz/imagesync/releases/latest | jq -r .tag_name)
+docker run --rm -it  ghcr.io/mqasimsarfraz/imagesync:$VERSION -h
 ```
 
 ## Examples
@@ -85,14 +86,26 @@ imagesync  -s testdata/alpine-oci -d localhost:5000/library/alpine:3
 
 ### Image Tag
 
+#### container image
 ```
 imagesync  -s library/alpine:3 -d localhost:5000/library/alpine:3
+```
+
+#### helm chart
+```
+imagesync  -s ghcr.io/nginxinc/charts/nginx-ingress:1.3.1 -d localhost:5000/nginxinc/charts/nginx-ingress:1.3.1
 ```
 
 ### Entire Repository
 
 ```
 imagesync  -s library/alpine -d localhost:5000/library/alpine
+```
+
+### Entire Repository (helm)
+
+```
+imagesync -s ghcr.io/nginxinc/charts/nginx-ingress -d localhost:5000/nginxinc/charts/nginx-ingress
 ```
 
 ## Private Registries
