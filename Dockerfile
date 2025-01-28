@@ -1,9 +1,9 @@
-FROM golang:1.19.0-bullseye as go-builder
+FROM golang:1.22-bullseye AS go-builder
 
 ARG IMAGESYNC_VERSION
 ENV IMAGESYNC_VERSION ${IMAGESYNC_VERSION}
 
-ENV PACKAGE github.com/MQasimSarfraz/image-sync
+ENV PACKAGE github.com/mqasimsarfraz/image-sync
 ENV CGO_ENABLED 1
 
 WORKDIR $GOPATH/src/$PACKAGE
@@ -19,7 +19,7 @@ RUN go vet ./...
 RUN go test --parallel=1 ./...
 RUN go build -v \
     -ldflags="-s -w \
-      -X 'github.com/MQasimSarfraz/imagesync.Version=${IMAGESYNC_VERSION}'"\
+      -X 'github.com/mqasimsarfraz/imagesync.Version=${IMAGESYNC_VERSION}'"\
     -o /out/imagesync ./cmd/imagesync
 
 
