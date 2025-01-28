@@ -1,3 +1,4 @@
 .idea
 dist
-imagesync
+imagesync# Added by goreleaser init:
+dist/
