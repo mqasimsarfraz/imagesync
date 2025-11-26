@@ -1,10 +1,10 @@
-FROM golang:1.22-bullseye AS go-builder
+FROM golang:1.25-bookworm AS go-builder
 
 ARG IMAGESYNC_VERSION
-ENV IMAGESYNC_VERSION ${IMAGESYNC_VERSION}
+ENV IMAGESYNC_VERSION=${IMAGESYNC_VERSION}
 
-ENV PACKAGE github.com/mqasimsarfraz/image-sync
-ENV CGO_ENABLED 1
+ENV PACKAGE=github.com/mqasimsarfraz/image-sync
+ENV CGO_ENABLED=1
 
 WORKDIR $GOPATH/src/$PACKAGE
 
